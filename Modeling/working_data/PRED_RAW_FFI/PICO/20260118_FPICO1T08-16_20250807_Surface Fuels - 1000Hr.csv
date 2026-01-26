@@ -1,0 +1,8 @@
+Report Date,MacroPlot Name,Sample Event Date,Visited,Num. Transects,Tran. Length,Collected By,Entered/Verif. By,UV1 Description,UV2 Description,UV3 Description,Comment,SampleData_CreatedBy,SampleData_CreatedDate,SampleData_ModifiedBy,SampleData_ModifiedDate
+2026/01/18,FPICO1T08:16,2025/08/07,True,2,65.6,"ARL, CAF, AGJ",ARL,,,,,NPS\cfossum,9/8/2025 3:51:03 PM,NPS\alightcap,10/14/2025 4:56:05 PM
+
+Report Date,MacroPlot Name,Sample Event Date,Transect,Slope,Log No.,Diameter,Decay Class,CWDFuConSt,Comment
+2026/01/18,FPICO1T08:16,2025/08/07,1,5,1,8.8,3,Default,
+2026/01/18,FPICO1T08:16,2025/08/07,1,5,2,6,3,Default,
+2026/01/18,FPICO1T08:16,2025/08/07,1,5,3,5.7,3,Default,
+2026/01/18,FPICO1T08:16,2025/08/07,1,5,4,11.7,3,Default,

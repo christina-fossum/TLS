@@ -1,0 +1,27 @@
+Report Date,MacroPlot Name,Sample Event Date,Visited,Plot Area,Snag Plot Area,Break Pnt. Dia.,Collected By,Entered/Verif. By,UV1 Description,UV2 Description,UV3 Description,Comment,SampleData_CreatedBy,SampleData_CreatedDate,SampleData_ModifiedBy,SampleData_ModifiedDate
+2026/01/18,FPICO1T08:19,2025/08/11,True,0.032,0.032,15,"CAF, AGJ",ARL,,,,,NPS\cfossum,9/8/2025 3:53:10 PM,NPS\alightcap,9/29/2025 7:57:24 PM
+
+Report Date,MacroPlot Name,Sample Event Date,Subplot Frac.,Quarter,Tag Num.,UV1,Species,Status,Crown Class,DBH,Height,UV2,Live Crown Base Ht.,UV3,Comment,Is Verified,Damage 1,Damage 2,Damage 3,Damage 4,Damage 5,Char Ht.,Scorch Ht.,Crown Scorch %
+2026/01/18,FPICO1T08:19,2025/08/11,1,1,26,,PIEN,D,LBS,43.5,15.3,,,,old tag,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,1,24,,PICO,D,LBS,30.8,18.5,,,,old tag,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,1,3,,PICO,D,LBS,26,9.5,,,,,No,LEAN,ROOT,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,1,4,,PICO,D,LBS,22.4,16.3,,,,,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,1,23,,PICO,D,LBS,27.2,15.3,,,,old tag,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,1,57,,ABLA,L,SC,6.9,,,,,,No,ABGR,TWIN,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,1,58,,ABLA,L,SC,5.5,,,,,,No,ABGR,TWIN,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,2,6,,PICO,D,LBS,27.6,6.5,,,,,No,LEAN,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,2,59,,PICO,L,I,16,9.8,,4.2,,,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,2,60,,PICO,L,I,16.7,10.4,,1.4,,,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,2,61,,PICO,L,SC,7.3,,,,,,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,2,62,,PICO,L,SC,11.2,,,,,,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,2,63,,ABLA,L,I,24.6,12.4,,0,,,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,2,7,,PICO,D,LBS,37.9,15.2,,,,,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,3,8,,PICO,D,RS,46.4,16.5,,,,,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,3,9,,PICO,D,LBS,31.5,16.8,,,,,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,3,10,,PICO,D,CS,18.7,11,,,,,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,3,22,,ABLA,L,I,30.6,16.6,,0,,old tag,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,3,11,,PICO,D,LBS,13.1,,,,,,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,3,12,,PICO,D,LBS,8.1,,,,,,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,3,20,,PICO,L,SC,18.8,6.8,,5.5,,,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,4,19,,ABLA,D,LBS,36.1,17,,,,,No,,,,,,,,
+2026/01/18,FPICO1T08:19,2025/08/11,1,4,18,,PICO,D,LBS,54,17.9,,,,,No,,,,,,,,

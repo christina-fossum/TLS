@@ -1,0 +1,3 @@
+Fuel Loadings = tons / acre
+
+Macroplot,MonStatusOrd,MonStatus,OneHr,TenHr,HunHr,FineWood,>3_Snd,>3_Rot,3_<6_DC1,6_<9_DC1,9_<12_DC1,12_<20_DC1,>20_DC1,3_<6_DC2,6_<9_DC2,9_<12_DC2,12_<20_DC2,>20_DC2,3_<6_DC3,6_<9_DC3,9_<12_DC3,12_<20_DC3,>20_DC3,3_<6_DC4,6_<9_DC4,9_<12_DC4,12_<20_DC4,>20_DC4,3_<6_DC5,6_<9_DC5,9_<12_DC5,12_<20_DC5,>20_DC5,3_<6_Snd,6_<12_Snd,12_<20_Snd,20_<35_Snd,35_<50_Snd,50>_Snd,3_<6_Rot,6_<12_Rot,12_<20_Rot,20_<35_Rot,35_<50_Rot,50>_Rot,TotalWood,Duff,Litter,TotalAll,DuffDep,LittDep,TotDep,FuelBedDep

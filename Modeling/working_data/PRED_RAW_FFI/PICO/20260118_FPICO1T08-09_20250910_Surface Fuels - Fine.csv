@@ -1,0 +1,6 @@
+Report Date,MacroPlot Name,Sample Event Date,Visited,Num. Transects,1-hr Tran. Len.,10-hr Tran. Len.,100-hr Tran. Len.,Collected By,Entered/Verif. By,UV1 Description,UV2 Description,UV3 Description,Comment,SampleData_CreatedBy,SampleData_CreatedDate,SampleData_ModifiedBy,SampleData_ModifiedDate
+2026/01/18,FPICO1T08:09,2025/09/10,True,2,65.6,65.6,65.6,"ARL, AGJ, CAF",ARL,,,,,NPS\cfossum,9/8/2025 3:33:23 PM,NPS\alightcap,9/22/2025 7:45:16 PM
+
+Report Date,MacroPlot Name,Sample Event Date,Transect,Azimuth,Slope,1 Hr Count,10 Hr Count,100 Hr Count,Comment,FWDFuConSt
+2026/01/18,FPICO1T08:09,2025/09/10,1,0,5,198,74,8,,Default
+2026/01/18,FPICO1T08:09,2025/09/10,2,270,5,250,109,30,,Default

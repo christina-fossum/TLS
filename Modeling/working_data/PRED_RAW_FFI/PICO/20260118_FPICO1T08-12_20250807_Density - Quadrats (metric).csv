@@ -1,0 +1,15 @@
+Report Date,MacroPlot Name,Sample Event Date,Visited,Num. Transects,Num. Quad./Tran.,Quad. Length,Quad. Width,Quad. Area,Collected By,Entered/Verif. By,UV1 Description,UV2 Description,UV3 Description,Comment,SampleData_CreatedBy,SampleData_CreatedDate,SampleData_ModifiedBy,SampleData_ModifiedDate
+2026/01/18,FPICO1T08:12,2025/08/07,True,1,4,10,10,78.5,"ARL, CAF, AGJ",ARL,,,,,NPS\cfossum,9/8/2025 3:39:23 PM,NPS\alightcap,9/23/2025 9:53:54 PM
+
+Report Date,MacroPlot Name,Sample Event Date,Subplot Frac.,Transect,Quadrat,Item Code,Status,Height,Count,Comment
+2026/01/18,FPICO1T08:12,2025/08/07,1,1,1,PICO,L,0.15,1,
+2026/01/18,FPICO1T08:12,2025/08/07,1,1,1,PICO,L,0.3,3,
+2026/01/18,FPICO1T08:12,2025/08/07,1,1,1,PICO,L,0.6,4,
+2026/01/18,FPICO1T08:12,2025/08/07,1,1,2,PICO,L,0.6,2,
+2026/01/18,FPICO1T08:12,2025/08/07,1,1,2,PICO,L,0.3,1,
+2026/01/18,FPICO1T08:12,2025/08/07,1,1,3,PICO,L,0.6,2,
+2026/01/18,FPICO1T08:12,2025/08/07,1,1,3,PICO,L,0.3,2,
+2026/01/18,FPICO1T08:12,2025/08/07,1,1,3,PICO,L,1,1,
+2026/01/18,FPICO1T08:12,2025/08/07,1,1,4,PICO,L,0.3,1,
+2026/01/18,FPICO1T08:12,2025/08/07,1,1,4,PICO,L,0.6,4,
+2026/01/18,FPICO1T08:12,2025/08/07,1,1,4,PICO,L,0.15,1,

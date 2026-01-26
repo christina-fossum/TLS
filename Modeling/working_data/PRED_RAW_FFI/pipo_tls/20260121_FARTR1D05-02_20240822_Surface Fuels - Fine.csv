@@ -1,0 +1,6 @@
+Report Date,MacroPlot Name,Sample Event Date,Visited,Num. Transects,1-hr Tran. Len.,10-hr Tran. Len.,100-hr Tran. Len.,Collected By,Entered/Verif. By,UV1 Description,UV2 Description,UV3 Description,Comment,SampleData_CreatedBy,SampleData_CreatedDate,SampleData_ModifiedBy,SampleData_ModifiedDate
+2026/01/21,FARTR1D05:02,2024/08/22,True,2,65.6,65.6,65.6,"LOP, CAF, KES",CAF,,,,,NPS\cfossum,12/4/2024 10:11:06 PM,NPS\cfossum,12/4/2024 10:11:06 PM
+
+Report Date,MacroPlot Name,Sample Event Date,Transect,Azimuth,Slope,1 Hr Count,10 Hr Count,100 Hr Count,Comment,FWDFuConSt
+2026/01/21,FARTR1D05:02,2024/08/22,1,0,5,13,9,5,,Default
+2026/01/21,FARTR1D05:02,2024/08/22,2,270,5,8,6,1,,Default

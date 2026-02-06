@@ -26,123 +26,12 @@ Contents:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ```{r}
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# 1. Run data loading functions
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-library(tidyverse)
 
-# Data Function for loading raw FFI output data
-load_headers <- function(directory_path, pattern) {
-  list_files <- list.files(path = directory_path, pattern = pattern, full.names = TRUE)
-  data_list <- lapply(list_files, function(file) {
-    file_data <- read.csv(file) %>% select(1:10) %>% filter(Visited == "True")
-    file_data <- file_data %>% mutate(Comment = "")
-  })
-  return(do.call(rbind, data_list))
-}
-
-load_data <- function(directory_path, pattern) {
-  list_files <- list.files(path = directory_path, pattern = pattern, full.names = TRUE)
-  data_list <- lapply(list_files, function(file) {
-    if (file.info(file)$size == 0) return(NULL)
-    file_data <- tryCatch({
-      read.csv(file, skip = 3) %>% mutate(Comment = "")
-    }, error = function(e) {
-      message("Error reading file: ", file, " - skipping this file.")
-      return(NULL)
-    })
-    return(file_data)
-  })
-  do.call(rbind, data_list[!sapply(data_list, is.null)])
-}
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# 2. Load Data
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# Load PICO Tree data
-directory_path <- "working_data/PRED_RAW_FFI/PICO/"  
-  
-trees_df <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
-list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
-trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
-trees_headers <- do.call(rbind, trees_headers)  
-trees_df <- left_join(x = trees_df, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
-
-# Delete unneeded rows
-trees_df <- trees_df %>% select(-c(1,4,5,7,13,15,16,17,20, 21,22,23:25,  26,27,29:40))
-trees_df <- trees_df %>%mutate(TreeBA_ft2 = (pi*(DBH/200)^2)*10.7639, PlotArea_Acres = 0.079) 
-trees_df1 <- trees_df
-
-# Load Allenspark Tree data
-directory_path <- "working_data/PRED_RAW_FFI/Allenspark/"  
-  
-trees_df <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
-list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
-trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
-trees_headers <- do.call(rbind, trees_headers)  
-trees_df <- left_join(x = trees_df, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
-
-# Delete unneeded rows
-trees_df <- trees_df %>% select(-c(1,4,5,7,13,15,16,17,20, 21,22,23:25,  26,27,29:40))
-trees_df <- trees_df %>%mutate(TreeBA_ft2 = (pi*(DBH/200)^2)*10.7639, PlotArea_Acres = 0.079) 
-
-#filter out Allenspark post-thin plots (piles will skew)
-trees_df <- trees_df %>% filter(!grepl("^2024/09/", Sample.Event.Date))
-
-#combine Allenspark + PICO
-trees_df <- rbind(trees_df1, trees_df)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 3. Calculate Pred Metrics
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#1. Height
-height <- trees_df %>% filter(!is.na(Height)) %>% group_by(MacroPlot.Name, Sample.Event.Date) %>% 
-  summarise(maxHt = max(Height), meanHt = mean(Height), medHt = median(Height), sdHt = sd(Height)) %>% ungroup()
-
-#2. CBH
-cbh <- trees_df %>% filter(!is.na(Live.Crown.Base.Ht.)) %>% group_by(MacroPlot.Name, Sample.Event.Date) %>% 
-  summarise(maxCBH = max(Live.Crown.Base.Ht.), meanCBH = mean(Live.Crown.Base.Ht.), medCBH = median(Live.Crown.Base.Ht.)) %>% ungroup()
-
-#3. DBH
-dbh <- trees_df %>% filter(!is.na(DBH)) %>% group_by(MacroPlot.Name, Sample.Event.Date) %>% 
-  summarise(maxDBH = max(DBH), meanDBH = mean(DBH), medDBH = median(DBH)) %>% ungroup()
-
-#4. Live vs. Dead Count
-status <- trees_df %>% filter(!is.na(Status))%>% group_by(MacroPlot.Name, Sample.Event.Date, Status) %>% summarise(Count = n()) %>% ungroup() %>% pivot_wider(names_from = Status, values_from = Count)
-status[is.na(status)] <- 0
-
-#5. poles
-poles <- trees_df %>% filter(!is.na(DBH))%>% mutate(sizeclass = case_when(DBH >= 15 ~ "OS", DBH < 15 ~ "Pole")) %>% group_by(MacroPlot.Name, Sample.Event.Date, sizeclass) %>% summarise(Count = n()) %>% ungroup() %>% pivot_wider(names_from = sizeclass, values_from = Count) 
-poles[is.na(poles)] <- 0
-
-#6. Basal Area 
-ba <- trees_df %>% filter(!is.na(DBH))%>%group_by(MacroPlot.Name, Sample.Event.Date)%>% summarise(ba_ft2_peracre = sum(TreeBA_ft2)/0.079) %>% ungroup()
-liveba <- trees_df %>% filter(Status == "L" )%>% filter(!is.na(DBH)) %>%group_by(MacroPlot.Name, Sample.Event.Date)%>% summarise(LIVE_ba_ft2_peracre = sum(TreeBA_ft2)/0.079) %>% ungroup()
-snagba <- trees_df %>% filter(Status == "D" )%>% filter(!is.na(DBH)) %>%group_by(MacroPlot.Name, Sample.Event.Date)%>% summarise(SNAG_ba_ft2_peracre = sum(TreeBA_ft2)/0.079) %>% ungroup()
-ba2 <- left_join(ba, liveba)
-ba2 <- left_join(ba2, snagba)
-ba2[is.na(ba2)] <- 0
-
-#combine
-met1 <- left_join(status, poles)
-met1 <- left_join(met1, dbh)
-met1 <- left_join(met1, cbh)
-met1 <- left_join(met1, height)
-met1 <- left_join(met1, ba2)
-
-#7. Trees per acre
-met1 <- met1 %>% mutate(LTrees_perAcre = L/0.079, DTrees_perAcre = D/0.079, OSTrees_perAcre = OS/0.079, Poles_perAcre = Pole/0.079)
-
-#8. basal area by species
-spba <- trees_df %>% filter(!is.na(DBH))%>%group_by(MacroPlot.Name, Sample.Event.Date, Species, Status)%>% summarise(ba_ft2_peracre = sum(TreeBA_ft2)/0.079) %>% ungroup()
-spba <- spba %>% pivot_wider(names_from = c(Species, Status), values_from = ba_ft2_peracre)
-
-met1 <- left_join(met1, spba)
-
-#write to .csv
-write.csv(met1, "working_data/pred_clean/pred_pico_AP_overstory.csv")
 
 
 ```
@@ -153,79 +42,7 @@ write.csv(met1, "working_data/pred_clean/pred_pico_AP_overstory.csv")
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ```{r}
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# 1. Run data loading functions
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-library(tidyverse)
 
-# Data Function for loading raw FFI output data
-load_headers <- function(directory_path, pattern) {
-  list_files <- list.files(path = directory_path, pattern = pattern, full.names = TRUE)
-  data_list <- lapply(list_files, function(file) {
-    file_data <- read.csv(file) %>% select(1:10) %>% filter(Visited == "True")
-    file_data <- file_data %>% mutate(Comment = "")
-  })
-  return(do.call(rbind, data_list))
-}
-
-load_data <- function(directory_path, pattern) {
-  list_files <- list.files(path = directory_path, pattern = pattern, full.names = TRUE)
-  data_list <- lapply(list_files, function(file) {
-    if (file.info(file)$size == 0) return(NULL)
-    file_data <- tryCatch({
-      read.csv(file, skip = 3) %>% mutate(Comment = "")
-    }, error = function(e) {
-      message("Error reading file: ", file, " - skipping this file.")
-      return(NULL)
-    })
-    return(file_data)
-  })
-  do.call(rbind, data_list[!sapply(data_list, is.null)])
-}
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# 2. Load Data
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# Load FFI Tree data
-#Fall24 rx
-directory_path <- "working_data/PRED_RAW_FFI/Fall24RX/"
-trees_df <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
-list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
-trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
-trees_headers <- do.call(rbind, trees_headers)  
-trees_df <- left_join(x = trees_df, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
-#Fall25 rx
-directory_path <-  "working_data/PRED_RAW_FFI/Fall25RX/"  
-trees_df2 <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
-list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
-trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
-trees_headers <- do.call(rbind, trees_headers)  
-trees_df2 <- left_join(x = trees_df2, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
-#Spring25 rx
-directory_path <- "working_data/PRED_RAW_FFI/Spring25RX/" 
-trees_df3 <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
-list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
-trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
-trees_headers <- do.call(rbind, trees_headers)  
-trees_df3 <- left_join(x = trees_df3, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
-#Eagle Cliff
-directory_path <- "working_data/PRED_RAW_FFI/EagleCliff/"  
-trees_df4 <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
-list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
-trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
-trees_headers <- do.call(rbind, trees_headers)  
-trees_df4 <- left_join(x = trees_df4, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
-#other pipo
-directory_path <- "working_data/PRED_RAW_FFI/pipo_tls/"
-trees_df5 <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
-list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
-trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
-trees_headers <- do.call(rbind, trees_headers)  
-trees_df5 <- left_join(x = trees_df5, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
-
-#Join
-trees_df <- do.call("rbind", list(trees_df, trees_df2, trees_df3, trees_df4, trees_df5))
 
 # Delete unneeded rows
 trees_df <- trees_df %>% select(-c(1,4,5,7,13,15,16,17,20, 21,22, 26,27,29:40))

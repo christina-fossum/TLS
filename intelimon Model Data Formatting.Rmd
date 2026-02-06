@@ -1,0 +1,489 @@
+---
+title: "Model Formatting"
+output: html_document
+date: "2026-02-04"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# TLS model formatting
+# Edited by: Christina Fossum 2/4/2026
+
+This script walks through process for formatting data to run the intelimon models (as in 'intelimon Data Analyst Training' folder). 
+(1) Formatting raw FFI data to match "pred" format (bottom of script)
+(2) Formatting intelimon data + "pred" FFI data to match the "pred" and "vars" format for modeling
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## (2) Formatting for "pred" and "vars"
+
+Pred/vars pairs for burn severity
+```{r}
+
+pred <- read.csv("DATA/pred_clean/burnseverity.csv") %>% select(-c(1))
+vars <- read.csv("DATA/vars_raw/romo_intelimon2026/merged_metrics.csv")%>% select(-c(1)) %>% rename(scan_name = h_filename)
+
+data <- left_join(pred, vars)%>% slice(-c(36))
+
+pred <- data %>% select(c(3, 1, 13, 4:12, 15:26))
+pred <- pred %>% mutate(Veg5Pct = case_when(MonStatus %in% c("PRE", "YR01", "PR01") ~ 100, .default = Veg5Pct))%>%
+  mutate(Sub5Pct = case_when(MonStatus %in% c("PRE", "YR01", "PR01") ~ 100, .default = Sub5Pct)) %>% 
+  mutate(SubSev = case_when(MonStatus %in% c("PRE", "YR01", "PR01")~ 5, .default = SubSev)) %>% 
+  mutate(VegSev = case_when(MonStatus %in% c("PRE", "YR01", "PR01")~ 5, .default = VegSev))
+pred[is.na(pred)] <- 0
+
+vars <- data %>% select(c(29:281))
+
+
+write.csv(pred, "DATA/pred_vars_pairs/pred_burnseverity.csv")
+write.csv(vars, "DATA/pred_vars_pairs/vars_burnseverity.csv")
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## (1) Data formatting for 'pred'
+when we have new plot/scan data to input for TLS models, use this
+
+
+# 1. Fuels
+Load FFI fuels data for 'fuels_pred' and combine
+```{r}
+## Load FFI fuels report data
+
+#PICO
+fuels1 <- read.csv("DATA/pred_raw/PICO/Report_SurfaceFuels_E.csv", skip = 1)%>% select(c(1:9, 47:50)) %>% 
+  rename(ThSound = X.3_Snd, ThRotten = X.3_Rot)
+
+#Allenspark
+fuels2 <- read.csv("DATA/pred_raw/Allenspark/Report_SurfaceFuels_E.csv", skip = 1)%>% select(c(1:9, 47:50)) %>% 
+  rename(ThSound = X.3_Snd, ThRotten = X.3_Rot)
+
+#Fall24 rx
+fuels3 <- read.csv("DATA/pred_raw/Fall24RX/Report_SurfaceFuels_E5.csv", skip = 1)%>% select(c(1:9, 47:50)) %>% 
+  rename(ThSound = X.3_Snd, ThRotten = X.3_Rot)
+
+#Fall25 rx
+fuels4 <- read.csv("DATA/pred_raw/Fall25RX/Report_SurfaceFuels_E3.csv", skip =1)%>% select(c(1:9, 47:50)) %>% 
+  rename(ThSound = X.3_Snd, ThRotten = X.3_Rot)
+
+#Spring25 rx
+fuels5 <- read.csv("DATA/pred_raw/Spring25RX/Report_SurfaceFuels_E2.csv", skip = 1)%>% select(c(1:9, 47:50)) %>% 
+  rename(ThSound = X.3_Snd, ThRotten = X.3_Rot)
+
+#Eagle Cliff
+fuels6 <- read.csv("DATA/pred_raw/EagleCliff/Report_SurfaceFuels_E4.csv", skip = 1)%>% select(c(1:9, 47:50)) %>% 
+  rename(ThSound = X.3_Snd, ThRotten = X.3_Rot)
+
+#other pipo (TLS pipo)
+fuels7a <- read.csv("DATA/pred_raw/pipo_tls/Report_SurfaceFuels_Ef.csv", skip = 1) %>% slice(c(10, 20, 30)) %>% select(c(1:9, 47:50)) %>% 
+  rename(ThSound = X.3_Snd, ThRotten = X.3_Rot)
+fuels7b <- read.csv("DATA/pred_raw/pipo_tls/Report_SurfaceFuels_Ep.csv", skip = 1) %>% slice(c(8, 19, 20, 34, 39, 48, 57, 62, 68, 73, 78, 82)) %>% select(c(1:9, 47:50)) %>% rename(ThSound = X.3_Snd, ThRotten = X.3_Rot)
+fuels7c <- read.csv("DATA/pred_raw/pipo_tls/Report_SurfaceFuelsCustomFuelConstants_Er.csv", skip = 1) %>% slice(c(4, 5, 9, 10, 15, 16, 20, 21, 22:25))%>%
+  select(c(1:9, 47:50)) 
+
+fuels7d <- read.csv("DATA/pred_raw/pipo_tls/Report_SurfaceFuels_E.csv", skip = 1)%>%rename(ThSound = X.3_Snd, ThRotten = X.3_Rot)
+
+fuels7e <- read.csv("DATA/pred_raw/pipo_tls/Report_SurfaceFuels_F.csv", skip = 1)%>% slice(c(6, 13,14, 17, 21, 30)) %>% rename(ThSound = X.3_Snd, ThRotten = X.3_Rot)
+
+fuels7f <- read.csv("DATA/pred_raw/pipo_tls/Report_SurfaceFuels_G.csv", skip = 1)%>% slice(c(9,18)) %>% rename(ThSound = X.3_Snd, ThRotten = X.3_Rot)
+
+fuels7g <- read.csv("DATA/pred_raw/pipo_tls/Report_SurfaceFuels_fartr2.csv", skip = 1)%>% slice(7) %>% rename(ThSound = X.3_Snd, ThRotten = X.3_Rot)
+
+
+fuels7 <- bind_rows(fuels7a, fuels7b, fuels7c, fuels7d, fuels7e, fuels7f, fuels7g)
+
+fuels <- bind_rows(fuels1, fuels2, fuels3, fuels4, fuels5, fuels6, fuels7)
+
+#write csv
+write.csv(fuels, "DATA/pred_clean/fuels.csv")
+
+
+#**After you have saved CSV, open with excel and add column with intelimon ID & delete plots with no intelimon scan, then save again
+
+
+
+
+
+```
+
+# 2. Overstory
+2A. Run data loading functions
+```{r}
+library(tidyverse)
+
+# Data Function for loading data headers
+load_headers <- function(directory_path, pattern) {
+  list_files <- list.files(path = directory_path, pattern = pattern, full.names = TRUE)
+  data_list <- lapply(list_files, function(file) {
+    file_data <- read.csv(file) %>% select(1:10) %>% filter(Visited == "True")
+    file_data <- file_data %>% mutate(Comment = "")
+  })
+  return(do.call(rbind, data_list))
+}
+
+# Data Function for loading data
+load_data <- function(directory_path, pattern) {
+  list_files <- list.files(path = directory_path, pattern = pattern, full.names = TRUE)
+  data_list <- lapply(list_files, function(file) {
+    if (file.info(file)$size == 0) return(NULL)
+    file_data <- tryCatch({
+      read.csv(file, skip = 3) %>% mutate(Comment = "")
+    }, error = function(e) {
+      message("Error reading file: ", file, " - skipping this file.")
+      return(NULL)
+    })
+    return(file_data)
+  })
+  do.call(rbind, data_list[!sapply(data_list, is.null)])
+}
+
+```
+
+2B. Load data (non-allenspark/TLS-PIPO)
+```{r}
+# (1) first do all the normal plots (same size, and not sub-sampling of poles)
+
+#Fall24 rx
+directory_path <- "DATA/pred_raw/Fall24RX/"
+trees_df <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
+list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
+trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
+trees_headers <- do.call(rbind, trees_headers)  
+trees_df1 <- left_join(x = trees_df, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
+
+#Fall25 rx
+directory_path <-  "DATA/pred_raw/Fall25RX/"  
+trees_df <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
+list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
+trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
+trees_headers <- do.call(rbind, trees_headers)  
+trees_df2 <- left_join(x = trees_df, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
+
+#Spring25 rx
+directory_path <- "DATA/pred_raw/Spring25RX/" 
+trees_df <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
+list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
+trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
+trees_headers <- do.call(rbind, trees_headers)  
+trees_df3 <- left_join(x = trees_df, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
+
+#Eagle Cliff
+directory_path <- "DATA/pred_raw/EagleCliff/"  
+trees_df <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
+list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
+trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
+trees_headers <- do.call(rbind, trees_headers)  
+trees_df4 <- left_join(x = trees_df, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
+
+#PICO
+directory_path <- "DATA/pred_raw/PICO/"  
+trees_df <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
+list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
+trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
+trees_headers <- do.call(rbind, trees_headers)  
+trees_df5 <- left_join(x = trees_df, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
+
+
+
+trees_df <- bind_rows(trees_df1, trees_df2, trees_df3, trees_df4, trees_df5) %>% select(-c(1, 4, 7, 13, 15, 16, 17, 26, 27, 29:40))
+
+```
+
+2C. Calculate 'pred' metrics (non-allenspark, non-tls-pipo)
+```{r}
+
+#1. Height
+height <- trees_df %>% filter(!is.na(Height)) %>% group_by(MacroPlot.Name, Sample.Event.Date) %>% 
+  summarise(maxHt = max(Height), meanHt = mean(Height), medHt = median(Height), sdHt = sd(Height)) %>% ungroup()
+
+#2. CBH
+cbh <- trees_df %>% filter(!is.na(Live.Crown.Base.Ht.)) %>% group_by(MacroPlot.Name, Sample.Event.Date) %>% 
+  summarise(maxCBH = max(Live.Crown.Base.Ht.), meanCBH = mean(Live.Crown.Base.Ht.), medCBH = median(Live.Crown.Base.Ht.)) %>% ungroup()
+
+#3. DBH
+dbh <- trees_df %>% filter(!is.na(DBH)) %>% group_by(MacroPlot.Name, Sample.Event.Date) %>% 
+  summarise(maxDBH = max(DBH), meanDBH = mean(DBH), medDBH = median(DBH)) %>% ungroup()
+
+#4. Live vs. Dead Count
+status <- trees_df %>% filter(!is.na(Status))%>% group_by(MacroPlot.Name, Sample.Event.Date, Status) %>% summarise(Count = n()) %>% ungroup() %>% pivot_wider(names_from = Status, values_from = Count)
+status[is.na(status)] <- 0
+status <- status %>% rename(LiveTreeCount = L, DeadTreeCount = D) %>% mutate(TotalTreeCount = LiveTreeCount + DeadTreeCount) %>% mutate(LiveTreesPerAcre = LiveTreeCount/0.079, DeadTreesPerAcre = DeadTreeCount/0.079, TotalTreesPerAcre = TotalTreeCount/0.079)
+
+#5. poles
+poles <- trees_df %>% filter(!is.na(DBH))%>% mutate(sizeclass = case_when(DBH >= 15 ~ "OS", DBH < 15 ~ "Pole")) %>% group_by(MacroPlot.Name, Sample.Event.Date, sizeclass) %>% summarise(Count = n()) %>% ungroup()%>% pivot_wider(names_from = sizeclass, values_from = Count) 
+poles[is.na(poles)] <- 0
+poles <- poles %>% rename(PoleCount = Pole, OverstoryCount = OS) %>% mutate(PolesPerAcre = PoleCount/0.079, OverstoryTreesPerAcre = OverstoryCount/0.079)
+
+#6. Basal Area
+ba <- trees_df %>% filter(!is.na(DBH))%>% mutate(TreeBA_ft2 = (pi*(DBH/200)^2)*10.7639) %>% group_by(MacroPlot.Name, Sample.Event.Date)%>% summarise(ba_ft2_peracre = sum(TreeBA_ft2)/0.079) %>% ungroup()
+sba <- trees_df %>% filter(!is.na(DBH))%>% filter(Status == "D" ) %>% mutate(TreeBA_ft2 = (pi*(DBH/200)^2)*10.7639) %>% group_by(MacroPlot.Name, Sample.Event.Date)%>% summarise(Snagba_ft2_peracre = sum(TreeBA_ft2)/0.079) %>% ungroup()
+lba <- trees_df %>% filter(!is.na(DBH))%>% filter(Status == "L" ) %>% mutate(TreeBA_ft2 = (pi*(DBH/200)^2)*10.7639) %>% group_by(MacroPlot.Name, Sample.Event.Date)%>% summarise(Liveba_ft2_peracre = sum(TreeBA_ft2)/0.079) %>% ungroup()
+
+basal <- left_join(ba, left_join(lba, sba))
+basal[is.na(basal)] <- 0
+
+#7. Species
+species <- trees_df %>% group_by(MacroPlot.Name, Sample.Event.Date, Species) %>% summarise(Count = n()) %>% ungroup()%>% pivot_wider(names_from = Species, values_from = Count) %>% rename(PIPO_cnt = PIPO, PSME_cnt = PSME, ABLA_cnt = ABLA, PICO_cnt = PICO, PIEN_cnt = PIEN)
+species1 <- trees_df %>%filter(Status == "L") %>% group_by(MacroPlot.Name, Sample.Event.Date, Species) %>% summarise(Count = n()) %>% ungroup()%>% pivot_wider(names_from = Species, values_from = Count)%>% rename(L_PIPO_cnt = PIPO, L_PSME_cnt = PSME, L_ABLA_cnt = ABLA, L_PICO_cnt = PICO, L_PIEN_cnt = PIEN)
+species2 <- trees_df %>%filter(Status == "D") %>% group_by(MacroPlot.Name, Sample.Event.Date, Species) %>% summarise(Count = n()) %>% ungroup()%>% pivot_wider(names_from = Species, values_from = Count)%>% rename(D_PIPO_cnt = PIPO, D_PSME_cnt = PSME, D_ABLA_cnt = ABLA, D_PICO_cnt = PICO, D_PIEN_cnt = PIEN)
+
+species <- left_join(species, left_join(species1, species2))
+species[is.na(species)] <- 0
+
+#combine
+os <- Reduce(function(x, y) full_join(x, y, by= c("MacroPlot.Name", "Sample.Event.Date")), list(height, cbh, dbh, status, poles, basal, species))
+
+write.csv(os, "DATA/pred_clean/overstory_stdplots.csv")
+
+```
+ 
+2D. Load Allenspark Data/calculate metrics
+```{r}
+#Allenspark
+directory_path <- "DATA/pred_raw/Allenspark/"  
+trees_df <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
+list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
+trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
+trees_headers <- do.call(rbind, trees_headers)  
+trees_df<- left_join(x = trees_df, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
+
+trees_df <- trees_df %>% select(-c(1, 4, 7, 12:17, 23:27, 29:40))
+
+#First, change "Plot.Area" to ".1236 for the post-thin reads, and .0618 for pre-thin reads to account for sub-sampling
+trees_df <- trees_df %>% mutate(Plot.Area = case_when(grepl("2024/06", Sample.Event.Date) ~ 0.0618,
+                                                      grepl("2024/09", Sample.Event.Date) ~ 0.1236))
+
+
+#3. DBH
+dbh <- trees_df %>% filter(!is.na(DBH)) %>% group_by(MacroPlot.Name, Sample.Event.Date) %>% 
+  summarise(maxDBH = max(DBH), meanDBH = mean(DBH), medDBH = median(DBH)) %>% ungroup()
+
+#4. Live vs. Dead Count
+status <- trees_df %>% filter(!is.na(Status))%>% group_by(MacroPlot.Name, Sample.Event.Date, Status, Plot.Area) %>% summarise(Count = n()) %>% ungroup() %>% pivot_wider(names_from = Status, values_from = Count)
+status[is.na(status)] <- 0
+status <- status %>% mutate(D = case_when(Plot.Area == 0.0618 ~ D * 2, Plot.Area == 0.1236 ~ D))%>% 
+  mutate(L = case_when(Plot.Area == 0.0618 ~ L * 2, Plot.Area == 0.1236 ~ L))
+status <- status %>% rename(LiveTreeCount = L, DeadTreeCount = D) %>% mutate(TotalTreeCount = LiveTreeCount + DeadTreeCount) %>% mutate(LiveTreesPerAcre = LiveTreeCount/Plot.Area, DeadTreesPerAcre = DeadTreeCount/Plot.Area, TotalTreesPerAcre = TotalTreeCount/Plot.Area)
+
+#5. poles
+poles <- trees_df %>% filter(!is.na(DBH))%>% mutate(sizeclass = case_when(DBH >= 15 ~ "OS", DBH < 15 ~ "Pole")) %>% group_by(MacroPlot.Name, Sample.Event.Date, sizeclass, Plot.Area) %>% summarise(Count = n()) %>% ungroup()%>% pivot_wider(names_from = sizeclass, values_from = Count) 
+poles[is.na(poles)] <- 0
+poles <- poles %>% mutate(OS = case_when(Plot.Area == 0.0618 ~ OS * 2, Plot.Area == 0.1236 ~ OS))%>% 
+  mutate(Pole = case_when(Plot.Area == 0.0618 ~ Pole * 2, Plot.Area == 0.1236 ~ Pole))
+poles <- poles %>% rename(PoleCount = Pole, OverstoryCount = OS) %>% mutate(PolesPerAcre = PoleCount/Plot.Area, OverstoryTreesPerAcre = OverstoryCount/Plot.Area)
+
+#6. Basal Area
+ba <- trees_df %>% filter(!is.na(DBH))%>% mutate(TreeBA_ft2 = (pi*(DBH/200)^2)*10.7639) %>% group_by(MacroPlot.Name, Sample.Event.Date, Plot.Area)%>% summarise(ba_ft2_peracre = sum(TreeBA_ft2)/Plot.Area) %>% ungroup()
+ba <- unique(ba)
+sba <- trees_df %>% filter(!is.na(DBH))%>% filter(Status == "D" ) %>% mutate(TreeBA_ft2 = (pi*(DBH/200)^2)*10.7639) %>% group_by(MacroPlot.Name, Sample.Event.Date, Plot.Area)%>% summarise(Snagba_ft2_peracre = sum(TreeBA_ft2)/Plot.Area) %>% ungroup()
+sba <- unique(sba)
+lba <- trees_df %>% filter(!is.na(DBH))%>% filter(Status == "L" ) %>% mutate(TreeBA_ft2 = (pi*(DBH/200)^2)*10.7639) %>% group_by(MacroPlot.Name, Sample.Event.Date, Plot.Area)%>% summarise(Liveba_ft2_peracre = sum(TreeBA_ft2)/Plot.Area) %>% ungroup()
+lba <- unique(lba)
+
+basal <- left_join(ba, left_join(lba, sba))
+basal[is.na(basal)] <- 0
+
+#7. Species
+species <- trees_df %>% group_by(MacroPlot.Name, Sample.Event.Date, Species, Plot.Area) %>% summarise(Count = n()) %>% ungroup() %>% 
+  mutate(Count = case_when(Plot.Area == 0.0618 ~ Count*2, Plot.Area == 0.1236 ~ Count))%>% 
+  pivot_wider(names_from = Species, values_from = Count) %>% rename(PSME_cnt = PSME, ABLA_cnt = ABLA, PICO_cnt = PICO, PIEN_cnt = PIEN, POTR_cnt = POTR5)
+species1 <- trees_df %>%filter(Status == "L") %>% group_by(MacroPlot.Name, Sample.Event.Date, Species, Plot.Area) %>% summarise(Count = n()) %>% ungroup()%>%  
+  mutate(Count = case_when(Plot.Area == 0.0618 ~ Count*2, Plot.Area == 0.1236 ~ Count))%>% pivot_wider(names_from = Species, values_from = Count)%>% rename(L_PSME_cnt = PSME, L_ABLA_cnt = ABLA, L_PICO_cnt = PICO, L_PIEN_cnt = PIEN, L_POTR_cnt = POTR5)
+species2 <- trees_df %>%filter(Status == "D") %>% group_by(MacroPlot.Name, Sample.Event.Date, Species, Plot.Area) %>% summarise(Count = n()) %>% ungroup()%>% mutate(Count = case_when(Plot.Area == 0.0618 ~ Count*2, Plot.Area == 0.1236 ~ Count))%>% pivot_wider(names_from = Species, values_from = Count)%>% rename(D_PSME_cnt = PSME, D_ABLA_cnt = ABLA, D_PICO_cnt = PICO, D_PIEN_cnt = PIEN, , D_POTR_cnt = POTR5)
+
+species <- left_join(species, left_join(species1, species2))
+species[is.na(species)] <- 0
+
+
+
+#combine
+os <- Reduce(function(x, y) full_join(x, y, by= c("MacroPlot.Name", "Sample.Event.Date")), list(dbh, status, poles, basal, species))
+
+os <- os %>% mutate(maxHt = NA, meanHt = NA, medHt = NA, sdHt = NA, maxCBH = NA, meanCBH = NA, medCBH = NA, medCBH = NA)
+
+
+
+write.csv(os, "DATA/pred_clean/overstory_allensparkplots.csv")
+
+
+
+```
+
+2E. Load TLS PIPO Data/calculate metrics
+```{r}
+library(tidyverse)
+
+
+#TLS-PIPO
+directory_path <- "DATA/pred_raw/tls_pipo/"  
+trees_df <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
+list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
+trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
+trees_headers <- do.call(rbind, trees_headers)  
+trees_df<- left_join(x = trees_df, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
+
+
+# delete unnecessary rows
+trees_df <- trees_df %>% select(c(2:3, 5, 8:11, 12, 14, 18:20))
+
+
+# (1) start with the 2024 "tls pipo" reads - basically the only data collected was # of trees and species 
+status <- trees_df %>% filter(Status == "X") %>% select(c(1,2,4,5)) %>% group_by(MacroPlot.Name, Sample.Event.Date) %>%
+  summarise(Count = n(), .groups = "drop") %>% rename(TotalTreeCount = Count) %>% mutate(TotalTreesPerAcre = TotalTreeCount/0.079)
+
+species <- trees_df %>% filter(Status == "X") %>% select(c(1,2,4,5)) %>% group_by(MacroPlot.Name, Sample.Event.Date, Species) %>% summarise(Count = n(), .groups = "drop") %>% pivot_wider(names_from = Species, values_from = Count) %>% rename(PIPO_cnt = PIPO, PSME_cnt = PSME, PICO_cnt = PICO) 
+
+tls_trees <- full_join(status, species)
+
+# (2) Now non-tlspipo trees
+trees_df <- trees_df %>% filter(Status != "X")
+
+#1. Height
+height <- trees_df %>% filter(!is.na(Height)) %>% group_by(MacroPlot.Name, Sample.Event.Date) %>% 
+  summarise(maxHt = max(Height), meanHt = mean(Height), medHt = median(Height), sdHt = sd(Height)) %>% ungroup()
+
+#2. CBH
+cbh <- trees_df %>% filter(!is.na(Live.Crown.Base.Ht.)) %>% group_by(MacroPlot.Name, Sample.Event.Date) %>% 
+  summarise(maxCBH = max(Live.Crown.Base.Ht.), meanCBH = mean(Live.Crown.Base.Ht.), medCBH = median(Live.Crown.Base.Ht.)) %>% ungroup()
+
+#3. DBH
+dbh <- trees_df %>% filter(!is.na(DBH)) %>% group_by(MacroPlot.Name, Sample.Event.Date) %>% 
+  summarise(maxDBH = max(DBH), meanDBH = mean(DBH), medDBH = median(DBH)) %>% ungroup()
+
+#4. Live vs. Dead Count
+status <- trees_df %>% filter(!is.na(Status))%>% group_by(MacroPlot.Name, Sample.Event.Date, Status) %>% summarise(Count = n()) %>% ungroup() %>% pivot_wider(names_from = Status, values_from = Count)
+status[is.na(status)] <- 0
+status <- status %>% rename(LiveTreeCount = L, DeadTreeCount = D) %>% mutate(TotalTreeCount = LiveTreeCount + DeadTreeCount) %>% mutate(LiveTreesPerAcre = LiveTreeCount/0.079, DeadTreesPerAcre = DeadTreeCount/0.079, TotalTreesPerAcre = TotalTreeCount/0.079)
+
+#5. poles
+poles <- trees_df %>% filter(!is.na(DBH))%>% mutate(sizeclass = case_when(DBH >= 15 ~ "OS", DBH < 15 ~ "Pole")) %>% group_by(MacroPlot.Name, Sample.Event.Date, sizeclass) %>% summarise(Count = n()) %>% ungroup()%>% pivot_wider(names_from = sizeclass, values_from = Count) 
+poles[is.na(poles)] <- 0
+poles <- poles %>% rename(OverstoryCount = OS) %>% mutate(OverstoryTreesPerAcre = OverstoryCount/0.079)
+
+#6. Basal Area
+ba <- trees_df %>% filter(!is.na(DBH))%>% mutate(TreeBA_ft2 = (pi*(DBH/200)^2)*10.7639) %>% group_by(MacroPlot.Name, Sample.Event.Date)%>% summarise(ba_ft2_peracre = sum(TreeBA_ft2)/0.079) %>% ungroup()
+sba <- trees_df %>% filter(!is.na(DBH))%>% filter(Status == "D" ) %>% mutate(TreeBA_ft2 = (pi*(DBH/200)^2)*10.7639) %>% group_by(MacroPlot.Name, Sample.Event.Date)%>% summarise(Snagba_ft2_peracre = sum(TreeBA_ft2)/0.079) %>% ungroup()
+lba <- trees_df %>% filter(!is.na(DBH))%>% filter(Status == "L" ) %>% mutate(TreeBA_ft2 = (pi*(DBH/200)^2)*10.7639) %>% group_by(MacroPlot.Name, Sample.Event.Date)%>% summarise(Liveba_ft2_peracre = sum(TreeBA_ft2)/0.079) %>% ungroup()
+
+basal <- left_join(ba, left_join(lba, sba))
+basal[is.na(basal)] <- 0
+
+#7. Species
+species <- trees_df %>% group_by(MacroPlot.Name, Sample.Event.Date, Species) %>% summarise(Count = n()) %>% ungroup()%>% pivot_wider(names_from = Species, values_from = Count) %>% rename(PIPO_cnt = PIPO)
+species1 <- trees_df %>%filter(Status == "L") %>% group_by(MacroPlot.Name, Sample.Event.Date, Species) %>% summarise(Count = n()) %>% ungroup()%>% pivot_wider(names_from = Species, values_from = Count)%>% rename(L_PIPO_cnt = PIPO)
+species2 <- trees_df %>%filter(Status == "D") %>% group_by(MacroPlot.Name, Sample.Event.Date, Species) %>% summarise(Count = n()) %>% ungroup()%>% pivot_wider(names_from = Species, values_from = Count)%>% rename(D_PIPO_cnt = PIPO)
+
+species <- left_join(species, left_join(species1, species2))
+species[is.na(species)] <- 0
+
+#combine
+os <- Reduce(function(x, y) full_join(x, y, by= c("MacroPlot.Name", "Sample.Event.Date")), list(height, cbh, dbh, status, poles, basal, species))
+
+os <- full_join(os, tls_trees)
+
+write.csv(os, "DATA/pred_clean/overstory_tlsplots.csv")
+
+```
+
+2F. Combine overstory tree data from 2C-2E
+```{r}
+# Load data
+std <- read.csv("DATA/pred_clean/overstory_stdplots.csv") %>% select(-X)
+ap <- read.csv("DATA/pred_clean/overstory_allensparkplots.csv") %>% select(-X)
+tls <- read.csv("DATA/pred_clean/overstory_tlsplots.csv") %>% select(-X)
+
+overstory <- full_join(std, ap)
+overstory <- full_join(overstory, tls)
+
+# write overstory data, add in TLS ID's, and delete non-composite dataframes created in 2C-2E
+write.csv(overstory, "DATA/pred_clean/overstory.csv")
+
+```
+
+# 4. Burn
+```{r}
+
+#Fall24 rx
+directory_path <- "DATA/pred_raw/Fall24RX/"
+trees_df <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
+list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
+trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
+trees_headers <- do.call(rbind, trees_headers)  
+trees_df1 <- left_join(x = trees_df, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
+
+#Fall25 rx
+directory_path <-  "DATA/pred_raw/Fall25RX/"  
+trees_df <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
+list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
+trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
+trees_headers <- do.call(rbind, trees_headers)  
+trees_df2 <- left_join(x = trees_df, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
+
+#Spring25 rx
+directory_path <- "DATA/pred_raw/Spring25RX/" 
+trees_df <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
+list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
+trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
+trees_headers <- do.call(rbind, trees_headers)  
+trees_df3 <- left_join(x = trees_df, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
+
+#Eagle Cliff
+directory_path <- "DATA/pred_raw/EagleCliff/"  
+trees_df <- load_data(directory_path, "_Trees - Individuals \\(metric\\)\\.csv$")
+list <- list.files(path = directory_path, pattern = "_Trees - Individuals \\(metric\\)\\.csv$", full.names = TRUE) 
+trees_headers <- lapply(list, function(file) read.csv(file, nrows = 1))
+trees_headers <- do.call(rbind, trees_headers)  
+trees_df4 <- left_join(x = trees_df, y = trees_headers, by = c("MacroPlot.Name", "Sample.Event.Date"))
+
+trees_df <- bind_rows(trees_df1, trees_df2, trees_df3, trees_df4) %>% select(c(2,3,9,23,24,25))
+trees_df[is.na(trees_df)] <- 0
+
+#1. calculate scorch/char
+fire <- trees_df  %>% group_by(MacroPlot.Name, Sample.Event.Date) %>% summarise(MaxCharHt = max(Char.Ht.), MeanCharHt = mean(Char.Ht.), MedCharHt = median(Char.Ht.), MaxScHt = max(Scorch.Ht.), MeanScHt = mean(Scorch.Ht.), MedScHt = median(Scorch.Ht.), MaxScPct = max(Crown.Scorch..), MeanScPct = mean(Crown.Scorch..), MedScPct = median(Crown.Scorch..))%>% ungroup()
+
+# 2. Load burn severity data
+bs1 <- read.csv("DATA/pred_raw/Fall24RX/Report_PostBurnSeverity3.csv")
+bs2 <- read.csv("DATA/pred_raw/Fall25RX/Report_PostBurnSeverity2.csv")
+bs3 <- read.csv("DATA/pred_raw/Spring25RX/Report_PostBurnSeverity.csv")
+bs <- bind_rows(bs1, bs2, bs3)
+
+bs <- bs %>% slice(-c(8, 10, 12,13, 15,16, 18,19,21)) %>% rename(MacroPlot.Name = Macroplot) %>% mutate(MonStatus = case_when(MonStatus %in% c("01POST", "02POST", "03POST") ~ "POST"))
+fire <- fire %>% slice(-c(36))
+fire <- fire %>% mutate(MonStatus = c("PRE", "POST", "YR01", "PRE", "POST", "YR01", "PRE", "POST", "YR01", "PRE", "POST", "YR01", 
+                                      "PRE", "POST", "YR01", "PRE", "POST", "YR01", "PRE", "POST", "YR01", "PRE", "POST", "YR01", 
+                                      "PRE", "POST", "YR01", "PRE", "PRE", "PRE", "PRE", "PRE", "PR01", "PRE", "POST", "PR01", "PRE",
+                                      "POST", "PR01", "PRE","POST","PR01", "PRE","POST","PR01", "PRE","POST","PRE", "POST", "YR01"))
+
+burnseverity <- full_join(fire, bs)
+
+
+# Now write the csv and add in scan IDs and correct data to be accurate
+write.csv(burnseverity, "DATA/pred_clean/burnseverity2.csv")
+
+```
+
+
+# 4. Vegetation
+* not done yet
+
+
+
+
+
+
+
+
+

@@ -13,7 +13,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This script walks through process for formatting data to run the intelimon models (as in 'intelimon Data Analyst Training' folder). 
 (1) Formatting raw FFI data to match "pred" format (bottom of script)
+  - For this, all data is saved within local 'DATA' folder that is NOT pushed into repository. Contact Christina to share this folder with you
+  
 (2) Formatting intelimon data + "pred" FFI data to match the "pred" and "vars" format for modeling
+  - These paired data frames are saved in "intelimon models" folder -> "pred_vars_pairs" folder
+  
+
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## (2) Formatting for "pred" and "vars"
@@ -42,7 +47,24 @@ write.csv(vars, "DATA/pred_vars_pairs/vars_burnseverity.csv")
 
 ```
 
+Pred/Vars for DINO bighorn Basin
+```{r}
 
+pred <- read.csv("DATA/pred_clean/BighornBasin.csv") %>% select(-c(1)) %>% rename(h_filename = X.1)
+vars <- read.csv("DATA/vars_raw/dino_intelimon2026/merged_metrics.csv") %>% select(-c(1:2))
+
+data <- full_join(pred, vars)
+
+pred <- data %>% select(c(1:17))
+pred[is.na(pred)] <- 0
+
+vars <- data %>% select(c(19:271))
+
+write.csv(pred, "intelimon models/pred_vars_pairs/pred_dino_bighornbasin.csv")
+write.csv(vars, "intelimon models/pred_vars_pairs/vars_dino_bighornbasin.csv")
+
+
+```
 
 
 
@@ -474,6 +496,37 @@ burnseverity <- full_join(fire, bs)
 write.csv(burnseverity, "DATA/pred_clean/burnseverity2.csv")
 
 ```
+
+# 5. DINO
+```{r}
+library(tidyverse)
+# Load Dino data
+
+files <- list.files(path = "DATA/pred_raw/bb/", pattern = "\\.csv$", full.names = TRUE)
+data <- files |> lapply(read.csv, skip = 3) |> bind_rows()
+
+#group by scan (first 12 points in scan A, last 12 points in scan B)
+data <- data %>% mutate(scan_position = case_when(Point %in% c(1:12) ~ "A", Point %in% c(88:100) ~ "B", .default = "none")) %>% filter(scan_position != "none")  %>% mutate(LifeForm = case_when(Species %in% c("BARE", "LITT", "SCAT", "ROCK") ~ "Substrate",
+                                             Species %in% c("ARTR2", "PUTR2","GUSA2", "CHVI8", "PAMY", "SYORU", "ARCA13", "BERE", "CHNA2") ~ "Shrub",
+                                             Species %in% c("PIED", "JUOS", "PRVI", "AMUT") ~ "Tree",
+                                             Species %in% c("PASM", "HECO26", "ELLA", "ELEL5", "LEKI2", "ELLA3", "KOMA", "POSE", "CAREX", "POFE", 
+                                                            "PSSP6", "MEBU", "STLE4", "FEOV", "ACHY") ~ "Native Grass",
+                                             Species %in% c("SPCO", "BASA3", "COUM", "LUSE4", "AGGL", "HEVI4", "ASSP6", "PHHO", "ASCO12", "DAFR", "LILE", "LILE2",
+                                                            "PEHU", "STAC", "DEPI", "ARPU", "LEVI23", "LIIN2", "MAGR2", "ACMIM2", "LIRU4") ~ "Native Forb",
+                                             Species %in% c("BRTE") ~ "Non-native Grass",
+                                             Species %in% c("LEDE") ~ "Non-Native Forb"))
+
+data <- data %>% group_by(MacroPlot.Name, scan_position, LifeForm) %>% summarise(Count = n(), .groups = "drop_last") %>% mutate(Cover = Count / sum(Count)) %>% ungroup()
+
+data <- data %>% pivot_wider(id_cols = c(MacroPlot.Name, scan_position), names_from = LifeForm, values_from = c(Count, Cover))
+
+write.csv(data, "DATA/pred_clean/BighornBasin.csv")
+
+```
+
+
+   "SYORU"  "ARCA13" "BERE"   "CHNA2" 
+
 
 
 # 4. Vegetation

@@ -23,8 +23,8 @@ library(ggplot2)
 # Step 2
 # Load data (using burn severity data for this demo)
 
-pred <- read.csv("intelimon models/pred_vars_pairs/pred_burnseverity.csv") %>% select(-1)
-vars <- read.csv("intelimon models/pred_vars_pairs/vars_burnseverity.csv") %>% select(-1)
+pred <- read.csv("intelimon models/RX Burn Severity//pred_burnseverity.csv") %>% select(-1)
+vars <- read.csv("intelimon models/RX Burn Severity//vars_burnseverity.csv") %>% select(-1)
 
 # Filter out reads/scans that you don't want to use in models as well as 'pred' variables you aren't interested in
 # (might not be necessary, but for burn severity data, we want to filter out all of the year-1 data and most of the pre-burn data so that those don't overpower post-burn)

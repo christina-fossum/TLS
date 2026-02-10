@@ -142,15 +142,19 @@ BS <- BS %>% select(c(x, y, MacroPlot.Name, MonStatus)) %>%
                           MacroPlot.Name %in% c("FPIPS1T02:14", "FPIPS1T02:01", "FPIPS1T02:05", "FPIPS1T02:02") ~ "Fall2025"))
 
 BS <- BS %>% pivot_longer(cols = c(x,y), names_to = "type", values_to = "value")
+BS <- BS %>% mutate(type = case_when(type == "x" ~ "Predicted", type == "y" ~ "Observed"))
+
+sum <- BS %>% group_by( burn, type ) %>% summarise(max = max(value), min = min(value), median = median(value), mean = mean(value), sd = sd(value)) %>% 
+  ungroup()
 
 
 ggplot(BS) + geom_boxplot(aes(x = burn, y = value, fill = type)) 
 
 
-sum <- BS %>% group_by( burn, type ) %>% summarise(max = max(value), min = min(value), median = median(value), mean = mean(value), sd = sd(value)) %>% ungroup()
 
-ggplot(sum) + geom_col(aes(x = burn, y = mean, fill = type), position = position_dodge())+ geom_errorbar(aes(x = burn, ymin = mean - sd, ymax = mean+ sd, fill = type), 
-                                                                                                         position = position_dodge())
+
+ggplot(sum) + geom_col(aes(x = burn, y = mean, fill = type), position = position_dodge())+ 
+  geom_errorbar(aes(x = burn, ymin = mean - sd, ymax = mean+ sd, fill = type), position = position_dodge())
 
 
 

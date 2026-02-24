@@ -1,7 +1,0 @@
-Report Date,MacroPlot Name,Sample Event Date,Visited,Num. Transects,Tran. Length,Collected By,Entered/Verif. By,UV1 Description,UV2 Description,UV3 Description,Comment,SampleData_CreatedBy,SampleData_CreatedDate,SampleData_ModifiedBy,SampleData_ModifiedDate
-2026/01/21,AP_02,2024/09/17,True,2,20,"CAF, LOP, PJK",CAF,,,,,NPS\cfossum,11/29/2024 8:59:35 PM,NPS\cfossum,11/29/2024 8:59:35 PM
-
-Report Date,MacroPlot Name,Sample Event Date,Transect,Slope,Log No.,Diameter,Decay Class,CWDFuConSt,Comment,UV1,UV2,UV3
-2026/01/21,AP_02,2024/09/17,1,5,1,14.5,4,Default,,,,
-2026/01/21,AP_02,2024/09/17,2,5,1,14,4,Default,,,,
-2026/01/21,AP_02,2024/09/17,2,5,2,15,4,Default,,,,

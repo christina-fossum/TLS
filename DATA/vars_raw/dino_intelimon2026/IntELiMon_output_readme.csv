@@ -1,0 +1,76 @@
+########################,,,,
+The following metadata describes the plot metrics output by the IntELiMon system,,,,
+"""Metric"" is the name of the outputted variable",,,,
+"""Description describes what the output represents",,,,
+"""Scan Division"", ""Metric type"" and ""Voxelized/Point Cloud"" describe at what point in the process the metric originates from",,,,
+"Abbreviations: TGI- triangular greenness index, VARI- visible atmospherically resistant index, CWD- coarse woody debris",,,,
+########################,,,,
+Metric,Description (simplified),Scan Division,Metric type,Voxelized/Point Cloud
+h_l1_cnt to h_l5_cnt,Point density in strata 1 to 5,By stratum,General,Point Cloud
+h_l1_per to h_l5_per,% of points not classified as ground in strata 1 to 5,By stratum,General,Point Cloud
+h_l1_tgi to h_l5_tgi,TGI in strata 1 to 5,By stratum,General,Point Cloud
+h_l1_vari to h_l5_vari,VARI in strata 1 to 5,By stratum,General,Point Cloud
+h_l1_mean to h_l5_mean,Mean height in strata 1 to 5,By stratum,Height statistic,Point Cloud
+h_l1_median to h_l5_median,Median height in strata 1 to 5,By stratum,Height statistic,Point Cloud
+h_l1_std to h_l5_std,Standard deviation of heights in strata 1 to 5,By stratum,Height statistic,Point Cloud
+h_l1_skew to h_l5_skew,Skewness of heights in strata 1 to 5,By stratum,Height statistic,Point Cloud
+h_l1_kurt to h_l5_kurt,Kurtosis of heights in strata 1 to 5,By stratum,Height statistic,Point Cloud
+s_l1_na_per to s_l5_na_per,% of non-ground points occluded in strata 1 to 5,By stratum,Occlusion,Point Cloud
+s_l1_zero_per to s_l5_zero_per,% of unreturned non-ground points (true empty space) in strata 1 to 5,By stratum,Occlusion,Point Cloud
+s_l1_prop_mn,Mean proportion of occluded and no returns in strata 1 to 5,By stratum,Occlusion,Point Cloud
+s_l1_prop_sd,SD of proportion of occluded and no returns in strata 1 to 5,By stratum,Occlusion,Point Cloud
+s_l1_prop_sk,Skewness of proportion of occluded and no returns in strata 1 to 5,By stratum,Occlusion,Point Cloud
+s_l1_prop_ku,Kurtosis of proportion of occluded and no returns in strata 1 to 5,By stratum,Occlusion,Point Cloud
+hr0_10_l1_cnt or hr100_1000_l1_cnt,Standardized surface fuel PD classified as 1-10hr or 100-1000hr fuels,CWD,General,Voxelized
+hr0_10_l1_tgi or hr100_1000_l1_tgi,Standardized surface fuel TDI classified as 1-10hr or 100-1000hr fuels,CWD,General,Voxelized
+hr0_10_l1_vari or hr100_1000_l1_vari,Standardized surface fuel VARI classified as 1-10hr or 100-1000hr fuels,CWD,General,Voxelized
+hr0_10_l1_mean or hr100_1000_l1_mean,Standardized surface fuel mean height classified as 1-10hr or 100-1000hr fuels,CWD,Height statistic,Voxelized
+hr0_10_l1_median or hr100_1000_l1_median,Standardized surface fuel median height classified as 1-10hr or 100-1000hr fuels,CWD,Height statistic,Voxelized
+hr0_10_l1_std or hr100_1000_l1_std,Standardized surface fuel SD of height classified as 1-10hr or 100-1000hr fuels,CWD,Height statistic,Voxelized
+hr0_10_l1_skew or hr100_1000_l1_skew,Standardized surface fuel skewness of height classified as 1-10hr or 100-1000hr fuels,CWD,Height statistic,Voxelized
+hr0_10_l1_kurt or hr100_1000_l1_kurt,Standardized surface fuel kurtosis of height classified as 1-10hr or 100-1000hr fuels,CWD,Height statistic,Voxelized
+h_ground_cnt,Ground Point Density,Entire scan,General,Point Cloud
+h_not_ground_cnt,Not-Ground Point Density,Entire scan,General,Point Cloud
+h_per_ground,% of points classified as ground,Entire scan,General,Point Cloud
+h_ng_tgi,Triangular Greenness Index (TGI),Entire scan,General,Point Cloud
+h_ng_vari,Visual Atmospheric Resistance Index (VARI),Entire scan,General,Point Cloud
+h_pzabovezmean,% of non-ground points above mean height,Entire scan,General,Point Cloud
+h_pzabove2,% of non-ground points 2SD above mean height,Entire scan,General,Point Cloud
+vox_l1_cnt,PD standardized point cloud,Entire scan,General,Voxelized
+vox_l1_tgi,TGI of standardized point cloud,Entire scan,General,Voxelized
+vox_l1_vari,VARI of standardized point cloud,Entire scan,General,Voxelized
+h_zmax,Maximum height,Entire scan,Height statistic,Point Cloud
+h_zmean,Mean height,Entire scan,Height statistic,Point Cloud
+h_zsd,SD of heights  ,Entire scan,Height statistic,Point Cloud
+h_zskew,Skewness of heights,Entire scan,Height statistic,Point Cloud
+h_zkurt,Kurtosis of heights  ,Entire scan,Height statistic,Point Cloud
+vox_l1_mean,Mean height of standardized point cloud,Entire scan,Height statistic,Voxelized
+vox_l1_median,Median height of standardized point cloud,Entire scan,Height statistic,Voxelized
+vox_l1_std,SD of heights in standardized point cloud,Entire scan,Height statistic,Voxelized
+vox_l1_skew,Skewness of heights in standardized point cloud,Entire scan,Height statistic,Voxelized
+vox_l1_kurt,Kurtosis of heights in standardized point cloud,Entire scan,Height statistic,Voxelized
+per_gap,% of unreturned points overall,Entire scan,Occlusion,Point Cloud
+s_lng_na_per,% of possible non-ground points from occluded,Entire scan,Occlusion,Point Cloud
+s_lng_zero_per,% of unreturned non-ground points (true empty space),Entire scan,Occlusion,Point Cloud
+s_lng_prop_mn,Mean proportion of true points?,Entire scan,Occlusion,Point Cloud
+s_lng_prop_sd,SD of proportion of occluded and no returns in entire scan,Entire scan,Occlusion,Point Cloud
+s_lng_prop_sk,Skewness of proportion of occluded and no returns in entire scan,Entire scan,Occlusion,Point Cloud
+s_lng_prop_ku,Kurtosis of proportion of occluded and no returns in entire scan,Entire scan,Occlusion,Point Cloud
+h_zq5 to h_zq95,Height at 5th to 95th quantiles,Entire scan,Quantiles,Point Cloud
+h_zpcum1 to h_zpcum9,% of points below 10th to 90th quantile of max ht,Entire scan,Quantiles,Point Cloud
+TBA,Total basal area,Entire scan,Trees,Point Cloud
+Basalarea,Mean basal area,Entire scan,Trees,Point Cloud
+MeanTH,Mean tree height,Entire scan,Trees,Point Cloud
+MDBH,Mean dbh,Entire scan,Trees,Point Cloud
+TreesN,Number of trees,Entire scan,Trees,Point Cloud
+MaxTH,Maximum tree height,Entire scan,Trees,Point Cloud
+SDHT,Standard deviation of tree heights,Entire scan,Trees,Point Cloud
+CBH,Canopy base height,Entire scan,Trees,Point Cloud
+fuel0_3l1_cnt,Standardized surface fuel VD,Surface vegetation,General,Voxelized
+fuel0_3l1_tgi,Standardized surface fuel TGI,Surface vegetation,General,Voxelized
+fuel0_3l1_vari,Standardized surface fuel VARI,Surface vegetation,General,Voxelized
+fuel0_3l1_mean,Standardized surface fuel mean height,Surface vegetation,Height statistic,Voxelized
+fuel0_3l1_median,Standardized surface fuel median height,Surface vegetation,Height statistic,Voxelized
+fuel0_3l1_std,Standardized surface fuel SD of height,Surface vegetation,Height statistic,Voxelized
+fuel0_3l1_skew,Standardized surface fuel skewness of height,Surface vegetation,Height statistic,Voxelized
+fuel0_3l1_kurt,Standardized surface fuel kurtosis of height,Surface vegetation,Height statistic,Voxelized

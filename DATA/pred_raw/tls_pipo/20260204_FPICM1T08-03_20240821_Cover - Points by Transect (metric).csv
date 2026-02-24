@@ -1,0 +1,14 @@
+Report Date,MacroPlot Name,Sample Event Date,Visited,Num. Transects,Tran. Length,Num. Pts./Tran.,Collected By,Entered/Verif. By,UV1 Description,UV2 Description,UV3 Description,Comment,SampleData_CreatedBy,SampleData_CreatedDate,SampleData_ModifiedBy,SampleData_ModifiedDate
+2026/02/04,FPICM1T08:03,2024/08/21,True,2,20,20,"CAF, LOP",CAF,,,,,NPS\cfossum,12/4/2024 4:13:56 PM,NPS\cfossum,12/4/2024 4:13:56 PM
+
+Report Date,MacroPlot Name,Sample Event Date,Transect,Item Code,Status,Hits,Height,Comment,UV1,UV2,UV3
+2026/02/04,FPICM1T08:03,2024/08/21,1,GRAS1,,5,,,,,
+2026/02/04,FPICM1T08:03,2024/08/21,1,FORB1,,1,,,,,
+2026/02/04,FPICM1T08:03,2024/08/21,1,LITT1,,11,,,,,
+2026/02/04,FPICM1T08:03,2024/08/21,1,ROCK1,,2,,,,,
+2026/02/04,FPICM1T08:03,2024/08/21,2,GRAS1,,3,,,,,
+2026/02/04,FPICM1T08:03,2024/08/21,2,SEED1,,1,,,,,
+2026/02/04,FPICM1T08:03,2024/08/21,2,SHRUB,,2,,,,,
+2026/02/04,FPICM1T08:03,2024/08/21,2,LITT1,,11,,,,,
+2026/02/04,FPICM1T08:03,2024/08/21,2,BARE1,,1,,,,,
+2026/02/04,FPICM1T08:03,2024/08/21,2,ROCK1,,3,,,,,

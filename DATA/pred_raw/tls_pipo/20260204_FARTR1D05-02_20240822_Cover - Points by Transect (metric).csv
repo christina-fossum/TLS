@@ -1,0 +1,10 @@
+Report Date,MacroPlot Name,Sample Event Date,Visited,Num. Transects,Tran. Length,Num. Pts./Tran.,Collected By,Entered/Verif. By,UV1 Description,UV2 Description,UV3 Description,Comment,SampleData_CreatedBy,SampleData_CreatedDate,SampleData_ModifiedBy,SampleData_ModifiedDate
+2026/02/04,FARTR1D05:02,2024/08/22,True,2,20,20,"CAF, LOP, KES",CAF,,,,,NPS\cfossum,12/4/2024 10:12:52 PM,NPS\cfossum,12/4/2024 10:12:52 PM
+
+Report Date,MacroPlot Name,Sample Event Date,Transect,Item Code,Status,Hits,Height,Comment,UV1,UV2,UV3
+2026/02/04,FARTR1D05:02,2024/08/22,1,GRAS1,,17,,,,,
+2026/02/04,FARTR1D05:02,2024/08/22,1,FORB1,,8,,,,,
+2026/02/04,FARTR1D05:02,2024/08/22,1,SHRUB,,9,,,,,
+2026/02/04,FARTR1D05:02,2024/08/22,2,GRAS1,,20,,,,,
+2026/02/04,FARTR1D05:02,2024/08/22,2,FORB1,,2,,,,,
+2026/02/04,FARTR1D05:02,2024/08/22,2,SHRUB,,6,,,,,

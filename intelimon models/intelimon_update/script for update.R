@@ -20,20 +20,15 @@ library(ggplot2)
 pred <- read.csv("DATA/pred_clean/overstory.csv")%>% select(-1)
 vars <- read.csv("DATA/vars_raw/romo_intelimon2026/merged_metrics.csv") %>% select(-1) %>% rename(scan_name = h_filename)
 
-pred[is.na(pred)] <- 0
-
 temp <- inner_join(pred, vars)
 
-#remove plots where you didnt measure cbh
-temp <- temp %>% slice(-c(66, 70, 71, 73, 75, 77, 79, 81, 83:113))
-#now remove mixed con plots
-temp <- temp %>% slice(-c(43:55, 69:73))
-#now remove immediate post-burn
-temp <- temp %>% slice(-c(3,6,9,12,15,18,21,24,27,30,33,36,46,48,50,55))
-
-
+#format table for east side total tree count
+temp <- temp %>% slice(-c(43:55,72:81))
 pred <- temp %>% select(names(pred))
 vars <- temp %>% select(names(vars))
+pred[is.na(pred)] <- 0
+
+
 
 # Run the following chunk so that the vars data is formatted correctly for modeling
 vars <- vars %>% select(-c(1:3))
@@ -58,7 +53,7 @@ test_pred <- pred[test_indices, ]
 ## Model Selection
 
 
-regfit = regsubsets(train_pred$meanCBH~., train_vars,  nvmax = 3 , method = "seqrep", really.big = T) 
+regfit = regsubsets(train_pred$TotalTreesPerAcre~., train_vars,  nvmax = 3 , method = "seqrep", really.big = T) 
 
 # Visual checks to see how many variables you should use
 regsum<- summary(regfit)
@@ -73,16 +68,11 @@ vcov(regfit,3)
 coef(regfit,2)
 
 # Whichever variables are listed for vcov and coef, these are your variables selected for models 
-# Here I got: h_l2_std, s_l4_na_per, and s_l4_prop_ku
 
-train_data <- cbind(train_pred, train_vars)
-
-lm1 <- lm(meanCBH ~ h_zq15 + h_zq35 + SDSHT,
-          data = train_data)
 
 attach(train_vars)
 # put the selected predictor variables in the model after the "~" seperated by "+" and run the model
-lm1 <- lm(formula = train_pred$meanCBH ~  h_zq35  +    SDSHT + h_zq15)
+lm1 <- lm(formula = train_pred$TotalTreesPerAcre ~ h_US_median + StemsPacre)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Step 5
@@ -101,14 +91,14 @@ check_model(lm1) #if you have colinearity, consider using model with fewer varia
 lm_out <- predict.lm(lm1, vars)
 
 #format the predictions and observations for plotting
-data<-data.frame(x=lm_out, y=pred$meanCBH)
+data<-data.frame(x=lm_out, y=pred$TotalTreesPerAcre)
 
 # Plot observed values vs. predicted
 ggplot(data,aes(x,y)) +
   geom_point() +
   geom_smooth(method='lm', se=FALSE,) +
   theme_light() +
-  labs(x='Predicted Values', y='Observed Values', title='mean CBH') +
+  labs(x='Predicted Values', y='Observed Values', title='total trees per acre') +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold') 
   ) 
 # data points should be distributed fairly evenly along lm line
@@ -121,14 +111,14 @@ ggplot(data,aes(x,y)) +
 test_out<- predict.lm(lm1,test_vars)
 
 # Calculate RMSE of test data
-errors<- test_out - test_pred$meanCBH
+errors<- test_out - test_pred$TotalTreesPerAcre
 mae <- mean(abs(errors))
 mse <- mean(errors^2)
 sqrt(mse)
 rmse #rmse = 0.62. You can expect rmse for test data to not be as good as that for training data, but should still be good enough to predict. 0.62 is not great 
 
 # format test predicted and observed
-data2<- data.frame(x=test_out, y=test_pred$meanCBH)
+data2<- data.frame(x=test_out, y=test_pred$TotalTreesPerAcre)
 
 # Plot test observed values vs. test predicted
 ggplot(data2,aes(x,y)) +
@@ -144,9 +134,11 @@ ggplot(data2,aes(x,y)) +
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # If the model looks good, save to disk using naming convention you will remember meaning of
-saveRDS(lm1,  "intelimon models/intelimon_update/pipo_meancbh/pipo_meanCBH.rda")
-write.csv(pred, "intelimon models/intelimon_update/pipo_meancbh/pipo_meanCBH_pred.csv")
-write.csv(vars, "intelimon models/intelimon_update/pipo_meancbh/pipo_meanCBH_")
+saveRDS(lm1, "intelimon models/intelimon_update/pipo_treesperacre/pipo_treesperacre.rda")
+write.csv(pred, "intelimon models/intelimon_update/pipo_treesperacre/pipo_treesperacre_pred.csv")
+write.csv(vars, "intelimon models/intelimon_update/pipo_treesperacre/pipo_treesperacre_vars.csv")
+
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot your model to see where you went wrong/show efficacy. y = actual data, x = predicted data 

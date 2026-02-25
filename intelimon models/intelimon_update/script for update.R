@@ -14,7 +14,7 @@ library(ggplot2)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Step 2: mean CBH, total tree count, total trees per acre, snags per acre, poles per acre, overstory trees per acre
-# Load data (using burn severity data for this demo)
+# Load data: snags per acre
 
 
 pred <- read.csv("DATA/pred_clean/overstory.csv")%>% select(-1)
@@ -22,8 +22,13 @@ vars <- read.csv("DATA/vars_raw/romo_intelimon2026/merged_metrics.csv") %>% sele
 
 temp <- inner_join(pred, vars)
 
+#west side snags per acre
+temp <- temp %>% slice(c(43:55, 72,74,76,78,80))
+
+
 #format table for east side total tree count
-temp <- temp %>% slice(-c(43:55,72:81))
+#temp <- temp %>% slice(-c(43:55,72:81, 87:113))
+#temp <- temp %>% slice(-c(73,75,77,79,81, 87:113))
 pred <- temp %>% select(names(pred))
 vars <- temp %>% select(names(vars))
 pred[is.na(pred)] <- 0
@@ -41,7 +46,7 @@ vars <- vars %>% mutate(across(where(is.character), as.factor)) %>% select(where
 ## Split data into training and test datasets (change sample_size if needed so that 'test_vars' and 'test_pred' contain atleast 3-4 datapoints)
 
 set.seed(123)
-sample_size <- floor(0.1 * nrow(vars))
+sample_size <- floor(0.2 * nrow(vars))
 test_indices <- sample(seq_len(nrow(vars)), size = sample_size)
 train_vars <- vars[-test_indices, ]
 test_vars <- vars[test_indices, ]
@@ -72,7 +77,7 @@ coef(regfit,2)
 
 attach(train_vars)
 # put the selected predictor variables in the model after the "~" seperated by "+" and run the model
-lm1 <- lm(formula = train_pred$TotalTreesPerAcre ~ h_US_median + StemsPacre)
+lm1 <- lm(formula = train_pred$TotalTreesPerAcre ~ hr0_10_l1_median    +   LF_ASP)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Step 5
@@ -98,7 +103,7 @@ ggplot(data,aes(x,y)) +
   geom_point() +
   geom_smooth(method='lm', se=FALSE,) +
   theme_light() +
-  labs(x='Predicted Values', y='Observed Values', title='total trees per acre') +
+  labs(x='Predicted Values', y='Observed Values', title='Snags per acre') +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold') 
   ) 
 # data points should be distributed fairly evenly along lm line
@@ -145,16 +150,21 @@ write.csv(vars, "intelimon models/intelimon_update/pipo_treesperacre/pipo_treesp
 
 
 BS <- cbind(pred, data)
-BS <- BS %>% select(c(x, y, MacroPlot.Name, MonStatus)) %>% 
-  mutate(burn = case_when(MacroPlot.Name %in% c("BME_RAP001", "BME_RAP003", "BME_RAP004", "BME_RAP006", "BME_RAP009", "BME_RAP010", "BME_RAP002") ~ "Fall2024",
-                          MacroPlot.Name %in% c("BME_RAP013", "BME_RAP015", "BME_RAP016", "BME_RAP014", "FPIPS1T02:08", "FPIPS1T02:16") ~ "Spring2025",
-                          MacroPlot.Name %in% c("FPIPS1T02:14", "FPIPS1T02:01", "FPIPS1T02:05", "FPIPS1T02:02") ~ "Fall2025"))
 
-BS <- BS %>% pivot_longer(cols = c(x,y), names_to = "type", values_to = "value")
+BS <- BS %>% select(c(MacroPlot.Name, scan_name, x, y))
+
+BS <- BS %>% mutate(type = if_else(between(row_number(), 43,55) | between(row_number(), 72,76), "west", "east"))
 
 
-ggplot(BS) + geom_boxplot(aes(x = burn, y = value, fill = type)) 
+BS <- BS %>% pivot_longer(cols = c(x,y), names_to = "data", values_to = "value")
+BS$value[BS$value < 0] <- 0
 
+
+sum <- BS %>% group_by(type, data) %>% summarise(mean = mean(value), sd = sd(value)) %>% ungroup()
+
+
+ggplot(sum, aes(x = type, y = mean, fill = data)) + geom_col(position = position_dodge()) +
+  geom_errorbar(aes(ymin = mean - sd, ymax = mean+ sd), position = position_dodge())
 
 sum <- BS %>% group_by( burn, type ) %>% summarise(max = max(value), min = min(value), median = median(value), mean = mean(value), sd = sd(value)) %>% ungroup()
 

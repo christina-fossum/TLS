@@ -1,9 +1,0 @@
-Report Date,MacroPlot Name,Sample Event Date,Visited,Num. Transects,Num. Subbelts,Tran. Length,Tran. Width,Tran. Area,Collected By,Entered/Verif. By,UV1 Description,UV2 Description,UV3 Description,Comment,SampleData_CreatedBy,SampleData_CreatedDate,SampleData_ModifiedBy,SampleData_ModifiedDate
-2026/01/18,BME_RAP010,2025/06/16,True,2,4,20,2,40,"ARL, AGJ, CAF",AGJ,,,,,NPS\cfossum,7/7/2025 5:07:32 PM,NPS\agjohnson,7/7/2025 10:28:30 PM
-
-Report Date,MacroPlot Name,Sample Event Date,Subplot Frac.,Transect,Subbelt,Item Code,Age Class,Status,Count,Comment
-2026/01/18,BME_RAP010,2025/06/16,1,1,1,PUTR2,M,D,1,
-2026/01/18,BME_RAP010,2025/06/16,1,1,2,PUTR2,M,D,3,
-2026/01/18,BME_RAP010,2025/06/16,1,2,2,PUTR2,M,D,1,
-2026/01/18,BME_RAP010,2025/06/16,1,2,3,PUTR2,M,D,1,
-2026/01/18,BME_RAP010,2025/06/16,1,2,4,RICE,M,D,3,

@@ -13,32 +13,30 @@ library(see)
 library(ggplot2)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Step 2: mean CBH, total tree count, total trees per acre, snags per acre, poles per acre, overstory trees per acre
-# Load data: snags per acre
+# Step 2: fuels
 
-
-pred <- read.csv("DATA/pred_clean/overstory.csv")%>% select(-1)
+pred <- read.csv("DATA/pred_clean/fuels.csv")%>% select(-1)
 vars <- read.csv("DATA/vars_raw/romo_intelimon2026/merged_metrics.csv") %>% select(-1) %>% rename(scan_name = h_filename)
-
 temp <- inner_join(pred, vars)
 
-#west side snags per acre
-temp <- temp %>% slice(c(43:55, 72,74,76,78,80))
+#East side pre-burn fuels
+pre1 <- temp %>% filter(MonStatus %in% c("00PRE", "01PRE", "02PR01", "02PRE", "01PR01", "00Pre", "01YR15b", "02YR15b", "01YR21b", "01YR16b")) %>% 
+  slice(-c(1:24))
+pre2 <- temp %>% filter(!MonStatus %in% c("01POST", "02POST", "3POST")) %>% slice(-c(1:24)) #include yr01
+pre3 <- temp %>% slice(-c(1:24)) #include postburn
+#East Side Post-Burn Fuels
+pbf <- temp %>% filter(MonStatus %in% c("01POST", "02POST", "3POST")) %>% filter(!Macroplot %in% c("AP_02", "AP_03", "AP_04", "AP_05", "AP_06"))
+#East Side yr01 fuels
+yr1 <- temp %>% filter(MonStatus == "01YR01")
+# West Side Fuels
+wsf <- temp %>% slice(c(1:14, 15,17,19,21,23))
 
 
-#format table for east side total tree count
-#temp <- temp %>% slice(-c(43:55,72:81, 87:113))
-#temp <- temp %>% slice(-c(73,75,77,79,81, 87:113))
-pred <- temp %>% select(names(pred))
-vars <- temp %>% select(names(vars))
-pred[is.na(pred)] <- 0
+#format pred/vars (change this for each above)
+pred <- pre2 %>% select(names(pred))
+vars <- pre2 %>% select(names(vars))
 
-
-
-# Run the following chunk so that the vars data is formatted correctly for modeling
 vars <- vars %>% select(-c(1:3))
-
-
 vars <- vars %>% mutate(across(where(is.character), as.factor)) %>% select(where(~!is.factor(.) || nlevels(.) > 1)) %>% select(where(~sum(is.na(.)) == 0))
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,7 +44,7 @@ vars <- vars %>% mutate(across(where(is.character), as.factor)) %>% select(where
 ## Split data into training and test datasets (change sample_size if needed so that 'test_vars' and 'test_pred' contain atleast 3-4 datapoints)
 
 set.seed(123)
-sample_size <- floor(0.2 * nrow(vars))
+sample_size <- floor(0.1 * nrow(vars))
 test_indices <- sample(seq_len(nrow(vars)), size = sample_size)
 train_vars <- vars[-test_indices, ]
 test_vars <- vars[test_indices, ]
@@ -58,7 +56,7 @@ test_pred <- pred[test_indices, ]
 ## Model Selection
 
 
-regfit = regsubsets(train_pred$TotalTreesPerAcre~., train_vars,  nvmax = 3 , method = "seqrep", really.big = T) 
+regfit = regsubsets(train_pred$TotalAll~., train_vars,  nvmax = 3 , method = "seqrep", really.big = T) 
 
 # Visual checks to see how many variables you should use
 regsum<- summary(regfit)
@@ -77,7 +75,7 @@ coef(regfit,2)
 
 attach(train_vars)
 # put the selected predictor variables in the model after the "~" seperated by "+" and run the model
-lm1 <- lm(formula = train_pred$TotalTreesPerAcre ~ hr0_10_l1_median    +   LF_ASP)
+lm1 <- lm(formula = train_pred$TotalAll ~  h_l2_cnt   +   h_l3_cnt+ hr100_1000_l1_cnt)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Step 5
@@ -96,14 +94,14 @@ check_model(lm1) #if you have colinearity, consider using model with fewer varia
 lm_out <- predict.lm(lm1, vars)
 
 #format the predictions and observations for plotting
-data<-data.frame(x=lm_out, y=pred$TotalTreesPerAcre)
+data<-data.frame(x=lm_out, y=pred$TotalAll)
 
 # Plot observed values vs. predicted
 ggplot(data,aes(x,y)) +
   geom_point() +
   geom_smooth(method='lm', se=FALSE,) +
   theme_light() +
-  labs(x='Predicted Values', y='Observed Values', title='Snags per acre') +
+  labs(x='Predicted Values', y='Observed Values', title='total fuel load') +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold') 
   ) 
 # data points should be distributed fairly evenly along lm line
@@ -116,14 +114,14 @@ ggplot(data,aes(x,y)) +
 test_out<- predict.lm(lm1,test_vars)
 
 # Calculate RMSE of test data
-errors<- test_out - test_pred$TotalTreesPerAcre
+errors<- test_out - test_pred$TotalAll
 mae <- mean(abs(errors))
 mse <- mean(errors^2)
 sqrt(mse)
 rmse #rmse = 0.62. You can expect rmse for test data to not be as good as that for training data, but should still be good enough to predict. 0.62 is not great 
 
 # format test predicted and observed
-data2<- data.frame(x=test_out, y=test_pred$TotalTreesPerAcre)
+data2<- data.frame(x=test_out, y=test_pred$TotalAll)
 
 # Plot test observed values vs. test predicted
 ggplot(data2,aes(x,y)) +
@@ -134,15 +132,13 @@ ggplot(data2,aes(x,y)) +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold') 
   ) 
 
-# this plot really is not great: points are not distributed evenly along lm
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # If the model looks good, save to disk using naming convention you will remember meaning of
-saveRDS(lm1, "intelimon models/intelimon_update/pipo_treesperacre/pipo_treesperacre.rda")
-write.csv(pred, "intelimon models/intelimon_update/pipo_treesperacre/pipo_treesperacre_pred.csv")
-write.csv(vars, "intelimon models/intelimon_update/pipo_treesperacre/pipo_treesperacre_vars.csv")
-
+saveRDS(lm1, "TLS/intelimon models/intelimon_update/pipo_nonburn_totalfuelload/pipo_totalfuels_not_postburn.rda")
+write.csv(pred, "TLS/intelimon models/intelimon_update/pipo_nonburn_totalfuelload/pipo_totalfuels_not_postburn_pred.csv")
+write.csv(vars, "TLS/intelimon models/intelimon_update/pipo_nonburn_totalfuelload/pipo_totalfuels_not_postburn_vars.csv")
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -150,47 +146,32 @@ write.csv(vars, "intelimon models/intelimon_update/pipo_treesperacre/pipo_treesp
 
 
 BS <- cbind(pred, data)
+BS <- BS %>% select(c(Macroplot, MonStatus, scan_name, x, y))
 
-BS <- BS %>% select(c(MacroPlot.Name, scan_name, x, y))
-
-BS <- BS %>% mutate(type = if_else(between(row_number(), 43,55) | between(row_number(), 72,76), "west", "east"))
+BS <- BS %>% mutate(group = case_when(Macroplot %in% c("BME_RAP003", "BME_RAP004", "BME_RAP006", "BME_RAP009", "BME_RAP010") ~ "Fall24",
+                                      Macroplot %in% c("FPIPO1T09:27", "FPIPS1T02:01", "FPIPS1T02:02", "FPIPS1T02:05", "FPIPS1T02:14", "FPIPO1T09:09") ~ "Fall25",
+                                      Macroplot %in% c("BME_RAP013", "BME_RAP014", "BME_RAP015", "BME_RAP016", "FPIPS1T02:08", "FPIPS1T02:16") ~ "Spring25",
+                                      Macroplot %in% c("EC_01", "EC_02", "EC_03", "EC_04", "EC_05") ~ "EagleCliff", .default = "other"
+                                      ))
 
 
 BS <- BS %>% pivot_longer(cols = c(x,y), names_to = "data", values_to = "value")
-BS$value[BS$value < 0] <- 0
+
+ggplot(subset(BS, group == "other"), aes(x = MonStatus, y = value, fill = data)) + geom_boxplot()
 
 
-sum <- BS %>% group_by(type, data) %>% summarise(mean = mean(value), sd = sd(value)) %>% ungroup()
 
 
-ggplot(sum, aes(x = type, y = mean, fill = data)) + geom_col(position = position_dodge()) +
+sum <- BS %>% group_by(MonStatus, group, data) %>% summarise(mean = mean(value), sd = sd(value)) %>% ungroup()
+
+
+
+
+ggplot(BS, aes(x = MonStatus, y = value, fill = data)) + geom_boxplot()
+
+
+ggplot(sum, aes(x = MonStatus, y = mean, fill = data)) + geom_col(position = position_dodge()) +
   geom_errorbar(aes(ymin = mean - sd, ymax = mean+ sd), position = position_dodge())
-
-sum <- BS %>% group_by( burn, type ) %>% summarise(max = max(value), min = min(value), median = median(value), mean = mean(value), sd = sd(value)) %>% ungroup()
-
-ggplot(sum) + geom_col(aes(x = burn, y = mean, fill = type), position = position_dodge())+ geom_errorbar(aes(x = burn, ymin = mean - sd, ymax = mean+ sd, fill = type), 
-                                                                                                         position = position_dodge())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

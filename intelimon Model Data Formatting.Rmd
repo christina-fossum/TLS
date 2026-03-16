@@ -5,7 +5,7 @@ date: "2026-02-04"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "C:/Users/cfossum/OneDrive - DOI/Desktop/TLS repository")
 ```
 
 # TLS model formatting
@@ -553,11 +553,30 @@ data <- data %>% mutate(scan_position = case_when(Point %in% c(1:12) ~ "A", Poin
                                              Species %in% c("BRTE") ~ "Non-native Grass",
                                              Species %in% c("LEDE") ~ "Non-Native Forb"))
 
-data <- data %>% group_by(MacroPlot.Name, scan_position, LifeForm) %>% summarise(Count = n(), .groups = "drop_last") %>% mutate(Cover = Count / sum(Count)) %>% ungroup()
 
-data <- data %>% pivot_wider(id_cols = c(MacroPlot.Name, scan_position), names_from = LifeForm, values_from = c(Count, Cover))
+# Calculate Percent Cover for Functional Groups
+data1 <- data %>% group_by(MacroPlot.Name, scan_position, LifeForm) %>% summarise(Count = n(), .groups = "drop_last") 
+# Each scan covers 
+data1 <- data1 %>% group_by(MacroPlot.Name, scan_position) %>% mutate(count_per_position = sum(Count))
+#Calculate Functional Group % Cover
+data1 <- data1 %>% mutate(PercentCover_FG = (Count/count_per_position)*100)
+data1 <- data1 %>% select(-c(4:5)) %>% pivot_wider(id_cols = c(MacroPlot.Name, scan_position), names_from = LifeForm, values_from = PercentCover_FG)
+data1 <- data1 %>% rename(PC_NativeForb = `Native Forb`, PC_NativeGrass = `Native Grass`, PC_NonnativeGrass = `Non-native Grass`, PC_Shrub = Shrub, PC_Substrate = Substrate, PC_Tree = Tree, PC_NonnativeForb = `Non-Native Forb`)
 
-write.csv(data, "DATA/pred_clean/BighornBasin.csv")
+#calculate cover of cheatgrass/sagebrush
+data2 <- data %>% group_by(MacroPlot.Name, scan_position, Species) %>% summarise(Count = n(), .groups = "drop_last")
+data2 <- data2 %>% group_by(MacroPlot.Name, scan_position) %>% mutate(count_per_position = sum(Count))
+data2 <- data2 %>% mutate(PercentCover_SP = (Count/count_per_position)*100)
+data2 <- data2 %>% filter(Species %in% c("ARTR2", "BRTE"))
+data2 <- data2 %>% select(-c(4:5)) %>% pivot_wider(id_cols = c(MacroPlot.Name, scan_position), names_from = Species, values_from = PercentCover_SP)
+data2 <- data2 %>% rename(PC_ARTR2 = ARTR2, PC_BRTE = BRTE)
+
+# Join
+data3 <- left_join(data1, data2)
+data3[is.na(data3)] <- 0
+
+write.csv(data3, "DATA/pred_clean/bighornbasin.csv")
+
 
 ```
 

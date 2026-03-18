@@ -5,15 +5,15 @@
 # Look at pre/post/ yr-01 burn
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# tree count
+# Live Tree Count
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 library(tidyverse)
 library(leaps)
 library(performance)
 library(ggplot2)
 
-pred <- read.csv("RMNP Intelimon Update/2. ROMO_East_Trees/a. ROMO_East_TotalTreeCount/ROMO_EAST_TotalTreeCount_pred.csv")
-vars <- read.csv("RMNP Intelimon Update/2. ROMO_East_Trees/a. ROMO_East_TotalTreeCount/ROMO_EAST_TotalTreeCount_vars.csv")
+pred <- read.csv("RMNP Intelimon Update/2. ROMO_East_Trees/b. ROMO_East_LiveTreeCount/ROMO_EAST_LiveTreeCount_pred.csv")
+vars <- read.csv("RMNP Intelimon Update/2. ROMO_East_Trees/b. ROMO_East_LiveTreeCount/ROMO_EAST_LiveTreeCount_vars.csv")
 vars <- vars %>% mutate(across(where(is.character), as.factor)) %>% select(where(~!is.factor(.) || nlevels(.) > 1)) %>% select(where(~sum(is.na(.)) == 0))
 
 
@@ -27,7 +27,7 @@ test_vars <- vars[test_indices, ]
 train_pred <- pred[-test_indices, ]
 test_pred <- pred[test_indices, ]
 
-regfit = regsubsets(train_pred$TreeCount~., train_vars,  nvmax = 5 , method = "seqrep", really.big = T) 
+regfit = regsubsets(train_pred$L~., train_vars,  nvmax = 5 , method = "seqrep", really.big = T) 
 
 # Visual checks to see how many variables you should use
 regsum<- summary(regfit)
@@ -38,14 +38,14 @@ which.min(regsum$bic)
 plot(regfit, scale = "r2") 
 
 # Change # to best model
-vcov(regfit,2) 
-coef(regfit,2)
+vcov(regfit,5) 
+coef(regfit,5)
 
-# 0.1 for test data
-# 2: h_MS_cnt + fuel0_3l1_kurt  
-# 3:  h_MS_cnt + h_MS_per + fuel0_3l1_kurt 
-# 4: h_MS_cnt + h_zq20 + vox_l1_cnt + fuel0_3l1_kurt 
-# 5: h_l5_std + h_MS_cnt + h_zq20 + fDim + fuel0_3l1_kurt 
+# 0.2 for test data
+# 2: h_l5_cnt + fine_l1_vari  
+# 3:  h_l2_per   +   h_l5_cnt + fine_l1_vari 
+# 4: X      h_l5_cnt fuel0_3l1_cnt  fine_l1_vari
+# 5: X   +   h_l5_cnt   +   h_GC_per +  canopyCover + fine_l1_vari  
 
 
 
